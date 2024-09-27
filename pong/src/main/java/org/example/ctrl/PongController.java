@@ -33,13 +33,14 @@ public class PongController {
                     .then(Mono.empty());*/
             log.info("Pong throttled it");
             return Mono.error(new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Pong throttled it"))
-                    .delayElement(Duration.ofSeconds(3))
+                    .delayElement(Duration.ofSeconds(1))
                     .then(Mono.empty());
         }
 
         isProcessingRequest = true;
+        log.info("Pong accepted it");
         return Mono.just("World")
-                .delayElement(Duration.ofSeconds(3))
+                .delayElement(Duration.ofSeconds(1))
                 .doFinally(signalType -> isProcessingRequest = false);
     }
 }

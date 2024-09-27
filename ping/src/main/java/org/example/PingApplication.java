@@ -25,11 +25,19 @@ public class PingApplication {
     public static void main(String[] args) {
         SpringApplication.run(PingApplication.class, args);
 
-        /*WebClient client = WebClient.create("http://localhost:8081");
-
-        Flux.interval(Duration.ofSeconds(1))
-                .flatMap(i -> client.get().uri("/pong").exchange())
+        /*WebClient client = WebClient.create("http://localhost:8080");
+        Flux.interval(Duration.ofSeconds(2))
+                .flatMap(i -> client.get().uri("/ping?say=Hello").exchange())
                 .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
+                .subscribe(response -> System.out.println("Response from Pong: " + response));*/
+
+        /*Flux.interval(Duration.ofSeconds(1))
+                .flatMap(i -> Flux.merge(
+                        client.get().uri("/pong?say=Hello").exchange()
+                                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)),
+                        client.get().uri("/pong?say=Hello").exchange()
+                                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
+                ))
                 .subscribe(response -> System.out.println("Response from Pong: " + response));*/
     }
 }

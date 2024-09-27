@@ -56,4 +56,12 @@ public class PingService {
 
         return res;
     }
+
+
+    public String callPongServiceNoLock(String say) {
+        log.info("Request sent: {}", say);
+        String res = restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class);
+        log.info("Pong Respond: {}", res);
+        return res;
+    }
 }

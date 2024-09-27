@@ -29,10 +29,14 @@ public class PingController {
         }
     }
 
-    @GetMapping(value = "/ping2", produces = MediaType.TEXT_PLAIN_VALUE)
-    public Mono<String> getPing2(String say) {
-        log.info(say);
-        return Mono.just("ping2");
+    @GetMapping(value = "/noLockPing", produces = MediaType.TEXT_PLAIN_VALUE)
+    public Mono<String> noLockPing(String say) {
+        String res = pingService.callPongServiceNoLock(say);
+        if (res == null){
+            return Mono.just("pong service no result, please check the request parameters.");
+        } else {
+            return Mono.just(res);
+        }
     }
 
 }
