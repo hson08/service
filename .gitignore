@@ -1,0 +1,53 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+#!**/src/test/**
+mvnw
+mvnw.cmd
+.mvn
+
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.class
+*.log
+
+
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+/local_history.patch
+/master
+/logPath_IS_UNDEFINED/**
+/bin/**
+/elevator-cloud-common-project/arap-server/bin/
+/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+/.gradle/buildOutputCleanup/cache.properties
+/.gradle/checksums/checksums.lock
+/.gradle/6.8/executionHistory/executionHistory.lock
+/.gradle/6.8/fileHashes/fileHashes.lock
+/.gradle/6.8/gc.properties
+/.gradle/configuration-cache/gc.properties
+/.gradle/vcs-1/gc.properties
+/.gradle/6.8/fileChanges/last-build.bin
