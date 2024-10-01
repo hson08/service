@@ -8,10 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -70,6 +73,8 @@ public class PingControllerTest {
                         .getResponseBody())
                 .collectList()
                 .block();
+
+
     }
 
     /**
@@ -99,6 +104,7 @@ public class PingControllerTest {
 
     @Mock
     private PingService pingService;
+
 
     @BeforeEach
     public void setUp() {
@@ -165,5 +171,26 @@ public class PingControllerTest {
         StepVerifier.create(result)
                 .expectNext("pong service no result, please check the request parameters.")
                 .verifyComplete();
+    }
+
+
+    @InjectMocks
+    private PingService pingServ;
+    @Mock
+    private RestTemplate restTemplate;
+    @Test
+    public void testCallPongServiceNoLock() {
+        // Arrange
+        String say = "Hello";
+        String expectedResponse = "Pong response";
+        when(restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class))
+                .thenReturn(expectedResponse);
+
+        // Act
+        String actualResponse = pingServ.callPongServiceNoLock(say);
+
+        // Assert
+        assertEquals(expectedResponse, actualResponse);
+        verify(restTemplate, times(1)).getForObject("http://pong-service/pong?say=" + say, String.class);
     }
 }
