@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.FileOutputStream;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.time.Duration;
 import java.time.Instant;
 import java.io.File;
@@ -50,6 +51,9 @@ public class PingService {
             }
 
             lock.release();
+        } catch (OverlappingFileLockException e) {
+            log.error("Caught OverlappingFileLockException: {}", e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
