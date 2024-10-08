@@ -30,7 +30,7 @@ public class PingApplication {
         String url = "http://localhost:"+ port;
 
         WebClient client = WebClient.create(url);
-        Flux.interval(Duration.ofSeconds(2))
+        Flux.interval(Duration.ofSeconds(1))
                 .flatMap(i -> client.get().uri("/ping?say=Hello").exchange())
                 .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
                 .subscribe(response -> System.out.println("Response from Pong: " + response));
