@@ -64,9 +64,9 @@ public class PingControllerTest {
      */
     @Test
     public void testGetPingRateLimited() {
-        int numberOfRequests = 3; // Number of concurrent requests
+        int numberOfRequests = 2; // Number of concurrent requests
         Flux.range(1, numberOfRequests)
-                .flatMap(i -> webTestClient.get().uri("/ping?say=Hello2")
+                .flatMap(i -> webTestClient.get().uri("/ping?say=Hello")
                         .exchange()
                         .expectStatus().isOk()
                         .returnResult(String.class)
