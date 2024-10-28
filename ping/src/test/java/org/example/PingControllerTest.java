@@ -44,20 +44,7 @@ public class PingControllerTest {
                 .subscribe(response -> System.out.println("Response from Ping: " + response));
     }
 
-    /**
-     * 同时发出两个请求，有一个请求是拒绝的
-     */
-    @Test
-    public void testGetNoLockPing() {
-        WebClient client = WebClient.create("http://localhost:8080");
-        Flux.merge(
-                    client.get().uri("/noLockPing?say=Hello").exchange()
-                            .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)),
-                    client.get().uri("/noLockPing?say=Hello").exchange()
-                            .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
-                )
-                .subscribe(response -> System.out.println("Response from Pong: " + response));
-    }
+
 
     /**
      * 一个线程（单进程）请求多于2次，测试 rate limited
@@ -66,7 +53,7 @@ public class PingControllerTest {
     public void testGetPingRateLimited() {
         int numberOfRequests = 2; // Number of concurrent requests
         Flux.range(1, numberOfRequests)
-                .flatMap(i -> webTestClient.get().uri("/ping?say=Hello")
+                .flatMap(i -> webTestClient.get().uri("/ping?instance=8080&say=Hello")
                         .exchange()
                         .expectStatus().isOk()
                         .returnResult(String.class)
@@ -114,12 +101,13 @@ public class PingControllerTest {
     @Test
     public void testGetPingWithResult() {
         // Arrange
+        String instance = "8080";
         String say = "Hello";
         String expectedResponse = "Pong response";
-        when(pingService.callPongService(say)).thenReturn(expectedResponse);
+        when(pingService.callPongService(instance, say)).thenReturn(expectedResponse);
 
         // Act
-        Mono<String> result = pingController.getPing(say);
+        Mono<String> result = pingController.getPing(instance, say);
 
         // Assert
         StepVerifier.create(result)
@@ -130,11 +118,12 @@ public class PingControllerTest {
     @Test
     public void testGetPingNoResult() {
         // Arrange
+        String instance = "8080";
         String say = "Hello";
-        when(pingService.callPongService(say)).thenReturn(null);
+        when(pingService.callPongService(instance, say)).thenReturn(null);
 
         // Act
-        Mono<String> result = pingController.getPing(say);
+        Mono<String> result = pingController.getPing(instance, say);
 
         // Assert
         StepVerifier.create(result)
@@ -142,55 +131,4 @@ public class PingControllerTest {
                 .verifyComplete();
     }
 
-    @Test
-    public void testNoLockPingWithResult() {
-        // Arrange
-        String say = "Hello";
-        String expectedResponse = "Pong response";
-        when(pingService.callPongServiceNoLock(say)).thenReturn(expectedResponse);
-
-        // Act
-        Mono<String> result = pingController.noLockPing(say);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectNext(expectedResponse)
-                .verifyComplete();
-    }
-
-    @Test
-    public void testNoLockPingNoResult() {
-        // Arrange
-        String say = "Hello";
-        when(pingService.callPongServiceNoLock(say)).thenReturn(null);
-
-        // Act
-        Mono<String> result = pingController.noLockPing(say);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectNext("pong service no result, please check the request parameters.")
-                .verifyComplete();
-    }
-
-
-    @InjectMocks
-    private PingService pingServ;
-    @Mock
-    private RestTemplate restTemplate;
-    @Test
-    public void testCallPongServiceNoLock() {
-        // Arrange
-        String say = "Hello";
-        String expectedResponse = "Pong response";
-        when(restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class))
-                .thenReturn(expectedResponse);
-
-        // Act
-        String actualResponse = pingServ.callPongServiceNoLock(say);
-
-        // Assert
-        assertEquals(expectedResponse, actualResponse);
-        verify(restTemplate, times(1)).getForObject("http://pong-service/pong?say=" + say, String.class);
-    }
 }

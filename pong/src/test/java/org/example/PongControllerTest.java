@@ -86,10 +86,10 @@ public class PongControllerTest {
     @Test
     public void testGetPongThrottled() {
         // Arrange
-        pongController.getPong("Hello").subscribe(); // First request to set isProcessingRequest to true
+        pongController.getPong("8080", "Hello").subscribe(); // First request to set isProcessingRequest to true
 
         // Act
-        Mono<String> result = pongController.getPong("Hello");
+        Mono<String> result = pongController.getPong("8080", "Hello");
 
         // Assert
         StepVerifier.create(result)

@@ -27,7 +27,7 @@ public class PingService {
     @Autowired
     RestTemplate restTemplate;
 
-    public String callPongService(String say) {
+    public String callPongService(String instance, String say) {
         File lockFile = new File(LOCK_FILE_PATH);
         String res = "";
         try (FileOutputStream fos = new FileOutputStream(lockFile)) {
@@ -52,6 +52,7 @@ public class PingService {
                 client.get()
                         .uri(uriBuilder ->
                                 uriBuilder.path("/pong")
+                                        .queryParam("instance", instance)
                                         .queryParam("say", say)
                                         .build())
                         .retrieve()
@@ -77,10 +78,5 @@ public class PingService {
     }
 
 
-    public String callPongServiceNoLock(String say) {
-        log.info("Request sent: {}", say);
-        String res = restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class);
-        log.info("Pong Respond: {}", res);
-        return res;
-    }
+
 }
