@@ -1,56 +1,49 @@
 package org.example.ctrl
 
-import org.example.PingApplication
 import org.example.service.PingService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTestContextBootstrapper
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType
-import org.springframework.test.context.BootstrapWith
-
-//import org.springframework.test.web.reactive.MockMvcWebTestClient
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.servlet.client.MockMvcWebTestClient
-import spock.lang.Specification
 import reactor.core.publisher.Mono
+import spock.lang.Specification
 
-import static org.springframework.test.web.reactive.server.WebTestClient.bindToServer
-
-//@WebFluxTest(PingController)
-@BootstrapWith(SpringBootTestContextBootstrapper)
-@AutoConfigureWebTestClient
-@SpringBootTest(classes = PingApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@WebFluxTest(PingController)
 class PingControllerTest extends Specification {
 
     @Autowired
-    PingService pingService // Mock the PingService
-    @Autowired
-    WebTestClient webTestClient
+    PingController pingController
 
-    def setup() {
-        webTestClient = WebTestClient.bindToServer().build()
-    }
+    @MockBean
+    PingService pingService // 打桩的服务
 
-    def "should return pong service result when valid parameters are provided"() {
+    def "should return response from PingService"() {
         given:
-        String instance = "test-instance"
+        String instance = "8080"
         String say = "Hello"
-        String expectedResponse = ""
 
-        pingService.callPongService(instance, say) >> expectedResponse // Mock the service call
+        // 配置打桩的行为
+        pingService.callPongService(instance, say) >> "Pong response: Hello"
 
         when:
-        def response = webTestClient.get()
-                .uri("/ping?instance=${instance}&say=${say}")
-                .accept(MediaType.TEXT_PLAIN)
-                .exchange()
+        Mono<String> response = pingController.getPing(instance, say)
 
         then:
-        response.expectStatus().isOk()
-        response.expectBody(String).isEqualTo(expectedResponse)
+        response.block() == "Pong response: Hello"
+    }
+
+    def "should return empty response when service returns null"() {
+        given:
+        String instance = "8080"
+        String say = "Goodbye"
+
+        // 配置打桩的行为返回空
+        pingService.callPongService(instance, say) >> null
+
+        when:
+        Mono<String> response = pingController.getPing(instance, say)
+
+        then:
+        response.block() == null
     }
 
 

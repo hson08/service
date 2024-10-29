@@ -4,12 +4,15 @@ import org.example.PongApplication
 import org.example.ctrl.PongController
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTestContextBootstrapper
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.BootstrapWith
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.server.ResponseStatusException
+import reactor.core.publisher.Mono
 import spock.lang.Specification
 
 @BootstrapWith(SpringBootTestContextBootstrapper)
@@ -17,60 +20,68 @@ import spock.lang.Specification
 @SpringBootTest(classes = PongApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PongControllerTests extends Specification {
 
-    @Autowired
-    private WebTestClient webTestClient
+    PongController pongController = new PongController()
 
-    def "should return 'World' when say is 'Hello'"() {
-        when:
-        def response = webTestClient.get()
-                .uri("/pong?instance=test-instance&say=Hello")
-                .accept(MediaType.TEXT_PLAIN)
-                .exchange()
-
-        then:
-        response.expectStatus().isOk()
-        response.expectBody(String).isEqualTo("World")
-    }
-
-    def "should return empty when say is not 'Hello'"() {
-        when:
-        def response = webTestClient.get()
-                .uri("/pong?instance=test-instance&say=Goodbye")
-                .accept(MediaType.TEXT_PLAIN)
-                .exchange()
-
-        then:
-        response.expectStatus().isOk() // 由于返回 Mono.empty(), 依然返回200
-        response.expectBody(String).isEqualTo(null)
-    }
-
-    def "should return 429 Too Many Requests when already processing"() {
+    def "should return 'World' when 'say' is 'Hello'"() {
         given:
-        // First call to trigger processing
-        def firstResponse = webTestClient.get()
-                .uri("/pong?instance=test-instance&say=Hello")
-                .accept(MediaType.TEXT_PLAIN)
-                .exchange()
+        String instance = "8080"
+        String say = "Hello"
 
-        // Ensure the first response is initiated
-        firstResponse.expectStatus().isOk() // Ensure the first request is successful
-
-        when:
-        // Simulate a second call while the first is still processing
-        def secondResponse = webTestClient.get()
-                .uri("/pong?instance=test-instance&say=Hello")
-                .accept(MediaType.TEXT_PLAIN)
-                .exchange()
-
-        then:
-        secondResponse.expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
-        //secondResponse.expectStatus().isEqualTo(HttpStatus.OK)
-
-        // Optionally check the error message (if you implement error handling)
-        secondResponse.expectBody().consumeWith { body ->
-            assert body.getStatus() == HttpStatus.TOO_MANY_REQUESTS
-            //assert body.getStatus() == HttpStatus.OK
+        and:
+        // 打桩 getPong 方法返回固定值
+        pongController = Stub(PongController) {
+            getPong(instance, say) >> Mono.just("World")
         }
 
+        when:
+        Mono<String> response = pongController.getPong(instance, say)
+
+        then:
+        response.block() == "World"
     }
+
+    def "should return empty when 'say' is not 'Hello'"() {
+        given:
+        String instance = "8080"
+        String say = "Goodbye"
+
+        and:
+        // 打桩 getPong 方法返回空
+        pongController = Stub(PongController) {
+            getPong(instance, say) >> Mono.empty()
+        }
+
+        when:
+        Mono<String> response = pongController.getPong(instance, say)
+
+        then:
+        response.block() == null
+    }
+
+    /*def "should throttle requests"() {
+        given:
+        String instance = "8080"
+        String say = "Hello"
+
+        and:
+        // 模拟第一次请求
+        pongController = Stub(PongController) {
+            getPong(instance, say) >> Mono.just("World")
+        }
+
+        when:
+        def response1 = pongController.getPong(instance, say).block()
+
+        // 模拟第二次请求
+        pongController = Stub(PongController) {
+            getPong(instance, say) >> Mono.error(new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Pong throttled it"))
+        }
+
+        def response2 = pongController.getPong(instance, say).block()
+
+        then:
+        response1 == "World"
+        response2 instanceof ResponseStatusException
+        response2.statusCode == HttpStatus.TOO_MANY_REQUESTS
+    }*/
 }

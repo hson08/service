@@ -40,9 +40,6 @@ public class PingService {
                 log.info("{} Request sent: {}", instance, say);
                 requestCount++;
 
-                //res = restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class);
-                log.info("Pong Respond: {}", res);
-
                 WebClient client = WebClient.create("http://localhost:8081");
                 client.get()
                         .uri(uriBuilder ->
