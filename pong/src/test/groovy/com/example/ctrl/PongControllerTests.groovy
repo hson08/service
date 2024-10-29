@@ -58,7 +58,7 @@ class PongControllerTests extends Specification {
         response.block() == null
     }
 
-    /*def "should throttle requests"() {
+    def "should throttle requests"() {
         given:
         String instance = "8080"
         String say = "Hello"
@@ -83,5 +83,5 @@ class PongControllerTests extends Specification {
         response1 == "World"
         response2 instanceof ResponseStatusException
         response2.statusCode == HttpStatus.TOO_MANY_REQUESTS
-    }*/
+    }
 }
