@@ -23,7 +23,6 @@ public class PingApplication {
                 .flatMap(i -> client.get().uri("/ping?say=Hello&instance="+port).exchange())
                 .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
                 .subscribe(response -> System.out.println("Response from Pong: " + response));
-
         /*Flux.interval(Duration.ofSeconds(1))
                 .flatMap(i -> Flux.merge(
                         client.get().uri("/pong?say=Hello").exchange()
