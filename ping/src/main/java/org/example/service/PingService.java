@@ -20,14 +20,12 @@ import java.time.Instant;
 @Slf4j
 @Service
 public class PingService {
-    private static final String LOCK_FILE_PATH = "ping.lock";
-    private static int requestCount = 0;
-    private static Instant lastRequestTime = Instant.now();
+    public static final String LOCK_FILE_PATH = "ping.lock";
+    public static int requestCount = 0;
+    public static Instant lastRequestTime = Instant.now();
 
-    @Autowired
-    RestTemplate restTemplate;
 
-    public String callPongService(String say) {
+    public String callPongService(String instance, String say) {
         File lockFile = new File(LOCK_FILE_PATH);
         String res = "";
         try (FileOutputStream fos = new FileOutputStream(lockFile)) {
@@ -42,28 +40,29 @@ public class PingService {
             }
 
             if (requestCount < 2) {
-                log.info("Request sent: {}", say);
+                log.info("{} Request sent: {}", instance, say);
                 requestCount++;
 
                 //res = restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class);
-                //log.info("Pong Respond: {}", res);
+                log.info("Pong Respond: {}", res);
 
                 WebClient client = WebClient.create("http://localhost:8081");
                 client.get()
                         .uri(uriBuilder ->
                                 uriBuilder.path("/pong")
+                                        .queryParam("instance", instance)
                                         .queryParam("say", say)
                                         .build())
                         .retrieve()
                         .bodyToMono(String.class)
                         .subscribe(response -> {
-                            log.info("Pong Respond: {}", response);
+                            log.info("{} Pong Respond: {}", instance, response);
                         }, error -> {
                             // 处理错误
-                            log.error("Pong Respond Error: {}", error.getMessage());
+                            log.error("{} Pong Respond Error: {}", instance, error.getMessage());
                         });
             } else {
-                log.info("Request not send as being \"rate limited\"");
+                log.info("{} Request not send as being \"rate limited\"", instance);
             }
             lock.release();
         } catch (OverlappingFileLockException e) {
@@ -77,10 +76,5 @@ public class PingService {
     }
 
 
-    public String callPongServiceNoLock(String say) {
-        log.info("Request sent: {}", say);
-        String res = restTemplate.getForObject("http://pong-service/pong?say=" + say, String.class);
-        log.info("Pong Respond: {}", res);
-        return res;
-    }
+
 }
