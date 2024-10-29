@@ -12,10 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
-/**
- * @author: chenhs
- * @date: Created in 17:27 2024/9/25
- **/
+
 @Slf4j
 @RestController
 public class PongController {

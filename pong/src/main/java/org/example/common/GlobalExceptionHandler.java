@@ -12,11 +12,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author: chenhs
- * @date: Created in 18:53 2024/9/25
- **/
-
 
 @ControllerAdvice
 @RestController

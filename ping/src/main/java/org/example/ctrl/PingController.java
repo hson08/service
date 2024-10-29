@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-/**
- * @author: chenhs
- * @date: Created in 4:13 2024/9/26
- **/
+
 @RestController
 public class PingController {
 

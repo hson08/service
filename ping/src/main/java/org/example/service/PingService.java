@@ -13,10 +13,7 @@ import java.nio.channels.OverlappingFileLockException;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * @author: chenhs
- * @date: Created in 19:17 2024/9/25
- **/
+
 @Slf4j
 @Service
 public class PingService {
