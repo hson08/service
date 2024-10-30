@@ -1,5 +1,6 @@
 package org.example.ctrl;
 
+import lombok.RequiredArgsConstructor;
 import org.example.service.PingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,10 +11,10 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
+@RequiredArgsConstructor
 public class PingController {
 
-    @Autowired
-    PingService pingService;
+    private final PingService pingService;
 
     @GetMapping(value = "/ping", produces = MediaType.TEXT_PLAIN_VALUE)
     public Mono<String> getPing(@RequestParam(name = "instance") String instance
