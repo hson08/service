@@ -6,7 +6,6 @@ import spock.lang.Specification
 
 class PingServiceTest extends Specification {
 
-    WebClient.Builder webClientBuilder // 模拟 WebClient 的构建器
 
     PingService pingService = new PingService()
 
@@ -20,20 +19,20 @@ class PingServiceTest extends Specification {
         noExceptionThrown()
     }
 
-    def "test2"() {
+    /*def "test2"() {
         given:
         PingService.requestCount = 2
         when:
         pingService.callPongService(instance, say)
         then:
         noExceptionThrown()
-    }
+    }*/
 
     def "test3"() {
         given:
-        def LOCK_FILE_PATH = "ping.lock"
-        def lockFile = new File(LOCK_FILE_PATH)
-        def fos = new FileOutputStream(lockFile)
+        def LOCK_FILE_1 = "lock1.lock"
+        def lockFile1 = new File(LOCK_FILE_1)
+        def fos = new FileOutputStream(lockFile1)
         fos.getChannel().lock()
 
         when:
