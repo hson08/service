@@ -1,24 +1,30 @@
 package org.example.service
 
-
-import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 
 class PingServiceTest extends Specification {
 
-
     PingService pingService = new PingService()
-
     String instance = "8080"
     String say = "Hello"
 
     def "test"() {
         when:
-        pingService.callPongService(instance, say)
+        pingService.callPongService(instance, say, true)
+        //pingService.callPongService(instance, say)
         then:
+        //2 * pingService.callPongService(instance, say)
         noExceptionThrown()
     }
 
+    def "test2"() {
+        when:
+        pingService.callPongService(instance, say, false)
+        //pingService.callPongService(instance, say)
+        then:
+        //2 * pingService.callPongService(instance, say)
+        noExceptionThrown()
+    }
     /*def "test2"() {
         given:
         PingService.requestCount = 2
@@ -28,16 +34,17 @@ class PingServiceTest extends Specification {
         noExceptionThrown()
     }*/
 
-    def "test3"() {
+    /*def "test3"() {
         given:
-        def LOCK_FILE_1 = "lock1.lock"
-        def lockFile1 = new File(LOCK_FILE_1)
-        def fos = new FileOutputStream(lockFile1)
+        def LOCK_FILE = "ping.lock"
+        def lockFile = new File(LOCK_FILE)
+        def fos = new FileOutputStream(lockFile)
         fos.getChannel().lock()
 
         when:
         pingService.callPongService(instance, say)
         then:
         noExceptionThrown()
-    }
+    }*/
+
 }

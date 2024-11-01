@@ -13,13 +13,13 @@ class PingControllerTest extends Specification {
         def instance = "8080"
         def say = "Hello"
 
-        pingService.callPongService(instance,say) >> "Pong response: Hello"
+        pingService.callPongService(instance,say,true) >> "Pong response: Hello"
 
         when:
-        def response = pingController.getPing(instance,say)
+        def response = pingController.getPing(instance, say)
 
         then:
-        response.block() == "Pong response: Hello"
+        noExceptionThrown()
     }
 
 

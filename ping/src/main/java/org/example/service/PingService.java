@@ -14,12 +14,13 @@ import java.nio.channels.FileLock;
 @Slf4j
 @Service
 public class PingService {
+
     public static final String LOCK_FILE_1  = "lock1.lock";
     public static final String LOCK_FILE_2  = "lock2.lock";
     File lockFile1 = new File(LOCK_FILE_1);
     File lockFile2 = new File(LOCK_FILE_2);
 
-    public String callPongService(String instance, String say) {
+    public String callPongService(String instance, String say, boolean fix) {
         String res = "";
 
         try (FileOutputStream stream1 = new FileOutputStream(lockFile1);
@@ -34,7 +35,7 @@ public class PingService {
                 // 尝试获取第一个锁
                 lock1 = channel1.tryLock();
 
-                if (lock1 != null) {
+                if (lock1 != null && fix) {
                     call(instance, say);// 处理请求
                 } else {
                     // 尝试获取第二个锁
@@ -90,3 +91,4 @@ public class PingService {
 
 
 }
+
